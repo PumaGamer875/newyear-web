@@ -1,75 +1,70 @@
-const yearEl = document.getElementById("year");
-const countdownEl = document.getElementById("countdown");
-const fireworks = document.getElementById("fireworks");
+// ====== THREE.JS CITY ======
 
-let celebrated = false;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+camera.position.set(0, 10, 25);
 
-function updateClock() {
-  const now = new Date();
-  const target = new Date("2026-01-01T00:00:00");
-  const diff = target - now;
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth, innerHeight);
+document.getElementById("scene").appendChild(renderer.domElement);
 
-  if (diff <= 0) {
-    yearEl.textContent = "2026";
-    countdownEl.textContent = "🎉 ¡Feliz Año Nuevo! 🎆";
-
-    if (!celebrated) {
-      celebrated = true;
-      celebrate();
-    }
-    return;
-  }
-
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor(diff / 3600000) % 24;
-  const m = Math.floor(diff / 60000) % 60;
-  const s = Math.floor(diff / 1000) % 60;
-
-  countdownEl.textContent =
-    `Faltan ${d}d ${h}h ${m}m ${s}s`;
-}
-
-setInterval(updateClock, 1000);
-updateClock();
-
-/* ===== TRANSICIÓN VISUAL ===== */
-
-gsap.from("#year", {
-  scale: 0.8,
-  opacity: 0,
-  duration: 2,
-  ease: "power3.out"
+addEventListener("resize", ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
 });
 
-/* ===== FUEGOS ARTIFICIALES ===== */
+// Lights
+scene.add(new THREE.AmbientLight(0x4040ff, 1));
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(10, 20, 10);
+scene.add(light);
 
-function celebrate() {
-  gsap.to("#year", {
-    color: "#ff4",
-    textShadow: "0 0 40px #ff4",
-    duration: 1,
-    repeat: -1,
-    yoyo: true
-  });
+// Ground
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(200,200),
+  new THREE.MeshStandardMaterial({ color:0x020212 })
+);
+ground.rotation.x = -Math.PI/2;
+scene.add(ground);
 
-  setInterval(spawnFirework, 200);
+// Buildings
+for(let i=0;i<300;i++){
+  const h = Math.random()*12+2;
+  const b = new THREE.Mesh(
+    new THREE.BoxGeometry(1.5, h, 1.5),
+    new THREE.MeshStandardMaterial({ color:0x0b1b3a })
+  );
+  b.position.set((Math.random()-0.5)*80, h/2, (Math.random()-0.5)*80);
+  scene.add(b);
 }
 
-function spawnFirework() {
-  const fw = document.createElement("div");
-  fw.className = "firework";
-  fw.style.left = Math.random() * innerWidth + "px";
-  fw.style.top = innerHeight + "px";
-  fw.style.background = `hsl(${Math.random()*360},100%,60%)`;
-
-  fireworks.appendChild(fw);
-
-  gsap.to(fw, {
-    y: -innerHeight * Math.random(),
-    opacity: 0,
-    scale: 3,
-    duration: 1.5,
-    ease: "power2.out",
-    onComplete: () => fw.remove()
-  });
+function animate(){
+  requestAnimationFrame(animate);
+  camera.position.x = Math.sin(Date.now()*0.0002)*10;
+  camera.lookAt(0,5,0);
+  renderer.render(scene,camera);
 }
+animate();
+
+// ====== YEAR & TRANSITION DEMO ======
+
+const yearEl = document.getElementById("year");
+const countdownEl = document.getElementById("countdown");
+
+let demo = true;
+let t = 0;
+
+function update(){
+  if(demo){
+    t += 0.01;
+    if(t>1){
+      demo=false;
+      yearEl.textContent = "2026";
+      gsap.fromTo("#year",{scale:0.3,opacity:0},{scale:1,opacity:1,duration:1});
+    } else {
+      countdownEl.textContent = "Demostración de transición...";
+    }
+  }
+}
+setInterval(update,50);
