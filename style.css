@@ -13,6 +13,7 @@ body {
 #scene {
   position: fixed;
   inset: 0;
+  background: #000;
 }
 
 .overlay {
@@ -20,27 +21,11 @@ body {
   inset: 0;
   display: grid;
   place-items: center;
-  text-align: center;
+}
+
+#big-number {
+  font-size: clamp(10rem, 20vw, 18rem);
   color: white;
-  pointer-events: none;
+  text-shadow: 0 0 40px cyan, 0 0 80px cyan;
+  opacity: 0;
 }
-
-#year {
-  font-size: clamp(6rem, 18vw, 14rem);
-  text-shadow: 0 0 30px #4df, 0 0 60px #4df;
-}
-
-#countdown {
-  font-size: 2rem;
-  margin-top: 1rem;
-  color: #9ff;
-}
-
-.fw{
-  position: fixed;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
