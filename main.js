@@ -2,6 +2,15 @@ const canvas = document.getElementById("gl");
 const gl = canvas.getContext("webgl");
 
 canvas.width = innerWidth;
+function resize() {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
+addEventListener("resize", resize);
+resize();
+
 canvas.height = innerHeight;
 
 const vert = `
