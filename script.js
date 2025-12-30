@@ -71,6 +71,8 @@ function update(){
   if(t >= 1){
     demo = false;
     yearEl.innerHTML = "202<span id='last'>6</span>";
+    document.getElementById("music").play();
+    fireworks();
     return;
   }
 
