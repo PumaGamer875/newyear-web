@@ -15,7 +15,7 @@ addEventListener("resize", ()=>{
 });
 
 // Lights
-scene.add(new THREE.AmbientLight(0x4040ff, 1));
+scene.add(new THREE.AmbientLight(0x6060ff, 1));
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(10, 20, 10);
 scene.add(light);
@@ -29,15 +29,23 @@ ground.rotation.x = -Math.PI/2;
 scene.add(ground);
 
 // Buildings
-for(let i=0;i<300;i++){
-  const h = Math.random()*12+2;
+for(let i=0;i<350;i++){
+  const h = Math.random()*15+3;
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x0b1b3a,
+    emissive: 0x2233ff,
+    emissiveIntensity: Math.random()*0.6 + 0.3
+  });
+
   const b = new THREE.Mesh(
     new THREE.BoxGeometry(1.5, h, 1.5),
-    new THREE.MeshStandardMaterial({ color:0x0b1b3a })
+    mat
   );
-  b.position.set((Math.random()-0.5)*80, h/2, (Math.random()-0.5)*80);
+
+  b.position.set((Math.random()-0.5)*90, h/2, (Math.random()-0.5)*90);
   scene.add(b);
 }
+
 
 function animate(){
   requestAnimationFrame(animate);
@@ -56,15 +64,39 @@ let demo = true;
 let t = 0;
 
 function update(){
-  if(demo){
-    t += 0.01;
-    if(t>1){
-      demo=false;
-      yearEl.textContent = "2026";
-      gsap.fromTo("#year",{scale:0.3,opacity:0},{scale:1,opacity:1,duration:1});
-    } else {
-      countdownEl.textContent = "Demostración de transición...";
-    }
+  if(!demo) return;
+
+  t += 0.02;
+
+  if(t >= 1){
+    demo = false;
+    yearEl.innerHTML = "202<span id='last'>6</span>";
+    return;
+  }
+
+  yearEl.innerHTML = "202<span id='last'>5</span>";
+
+  const last = document.getElementById("last");
+  gsap.fromTo(last,
+    { y: 100, opacity: 0 },
+    { y: 0, opacity: 1, duration: 0.5 }
+  );
+}
+setInterval(update, 60);
+
+function fireworks(){
+  for(let i=0;i<30;i++){
+    const fw = document.createElement("div");
+    fw.className = "fw";
+    fw.style.left = Math.random()*innerWidth+"px";
+    fw.style.top = Math.random()*innerHeight/2+"px";
+    fw.style.background = `hsl(${Math.random()*360},100%,60%)`;
+    document.body.appendChild(fw);
+
+    gsap.fromTo(fw,
+      { scale: 0, opacity: 1 },
+      { scale: 5, opacity: 0, duration: 1, onComplete:()=>fw.remove() }
+    );
   }
 }
-setInterval(update,50);
+
