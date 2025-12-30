@@ -1,104 +1,56 @@
-// ====== THREE.JS CITY ======
+const bigNum = document.getElementById("big-number");
+const audio = document.getElementById("countdown-sound");
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
-camera.position.set(0, 10, 25);
+// Números descendentes de 10 a 0
+let current = 10;
 
-const renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(innerWidth, innerHeight);
-document.getElementById("scene").appendChild(renderer.domElement);
+function playCountdown() {
+  audio.currentTime = 0;
+  audio.play();
+}
 
-addEventListener("resize", ()=>{
-  camera.aspect = innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
+function animateNumber(n) {
+  bigNum.textContent = n;
 
-// Lights
-scene.add(new THREE.AmbientLight(0x6060ff, 1));
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(10, 20, 10);
-scene.add(light);
-
-// Ground
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(200,200),
-  new THREE.MeshStandardMaterial({ color:0x020212 })
-);
-ground.rotation.x = -Math.PI/2;
-scene.add(ground);
-
-// Buildings
-for(let i=0;i<350;i++){
-  const h = Math.random()*15+3;
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0x0b1b3a,
-    emissive: 0x2233ff,
-    emissiveIntensity: Math.random()*0.6 + 0.3
+  gsap.fromTo(bigNum, {
+    y: 200,
+    opacity: 0,
+    scale: 0.5
+  }, {
+    y: 0,
+    opacity: 1,
+    scale: 1,
+    duration: 0.7,
+    ease: "back.out(1.7)"
   });
-
-  const b = new THREE.Mesh(
-    new THREE.BoxGeometry(1.5, h, 1.5),
-    mat
-  );
-
-  b.position.set((Math.random()-0.5)*90, h/2, (Math.random()-0.5)*90);
-  scene.add(b);
 }
 
+function startCountdown() {
+  playCountdown();
+  animateNumber(current);
 
-function animate(){
-  requestAnimationFrame(animate);
-  camera.position.x = Math.sin(Date.now()*0.0002)*10;
-  camera.lookAt(0,5,0);
-  renderer.render(scene,camera);
-}
-animate();
-
-// ====== YEAR & TRANSITION DEMO ======
-
-const yearEl = document.getElementById("year");
-const countdownEl = document.getElementById("countdown");
-
-let demo = true;
-let t = 0;
-
-function update(){
-  if(!demo) return;
-
-  t += 0.02;
-
-  if(t >= 1){
-    demo = false;
-    yearEl.innerHTML = "202<span id='last'>6</span>";
-    document.getElementById("music").play();
-    fireworks();
-    return;
-  }
-
-  yearEl.innerHTML = "202<span id='last'>5</span>";
-
-  const last = document.getElementById("last");
-  gsap.fromTo(last,
-    { y: 100, opacity: 0 },
-    { y: 0, opacity: 1, duration: 0.5 }
-  );
-}
-setInterval(update, 60);
-
-function fireworks(){
-  for(let i=0;i<30;i++){
-    const fw = document.createElement("div");
-    fw.className = "fw";
-    fw.style.left = Math.random()*innerWidth+"px";
-    fw.style.top = Math.random()*innerHeight/2+"px";
-    fw.style.background = `hsl(${Math.random()*360},100%,60%)`;
-    document.body.appendChild(fw);
-
-    gsap.fromTo(fw,
-      { scale: 0, opacity: 1 },
-      { scale: 5, opacity: 0, duration: 1, onComplete:()=>fw.remove() }
-    );
-  }
+  const interval = setInterval(() => {
+    current--;
+    if(current >= 0) {
+      animateNumber(current);
+      playCountdown();
+    } else {
+      clearInterval(interval);
+      onFinish();
+    }
+  }, 1000);
 }
 
+function onFinish() {
+  bigNum.textContent = "🎉 2026 🎆";
+  gsap.to(bigNum, {
+    color: "#ff4",
+    textShadow: "0 0 60px #ff4, 0 0 120px #ff4",
+    duration: 1.5,
+    repeat: -1,
+    yoyo: true
+  });
+}
+
+// Iniciar la cuenta regresiva
+startCountdown();
